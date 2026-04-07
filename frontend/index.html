@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Companies</title>
+</head>
+<body>
+
+<h2>Company Records</h2>
+
+<input id="status" placeholder="Filter by status">
+<input id="state" placeholder="Filter by state">
+<button onclick="filterData()">Search</button>
+
+<table border="1" id="table">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Status</th>
+      <th>State</th>
+      <th>Email</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+<button onclick="loadMore()">Load More</button>
+
+<script>
+let page = 1;
+
+async function fetchData() {
+  const res = await fetch(`http://localhost:3000/companies?page=${page}`);
+  const data = await res.json();
+
+  const tbody = document.querySelector("#table tbody");
+
+  data.forEach(c => {
+    tbody.innerHTML += `
+      <tr>
+        <td>${c.company_name}</td>
+        <td>${c.status}</td>
+        <td>${c.state}</td>
+        <td>${c.email?.value || ""}</td>
+      </tr>
+    `;
+  });
+}
+
+async function filterData() {
+  const status = document.getElementById("status").value;
+  const state = document.getElementById("state").value;
+
+  const res = await fetch(`http://localhost:3000/companies/filter?status=${status}&state=${state}`);
+  const data = await res.json();
+
+  const tbody = document.querySelector("#table tbody");
+  tbody.innerHTML = "";
+
+  data.forEach(c => {
+    tbody.innerHTML += `
+      <tr>
+        <td>${c.company_name}</td>
+        <td>${c.status}</td>
+        <td>${c.state}</td>
+        <td>${c.email?.value || ""}</td>
+      </tr>
+    `;
+  });
+}
+
+function loadMore() {
+  page++;
+  fetchData();
+}
+
+// Initial load
+fetchData();
+</script>
+
+</body>
+</html>
